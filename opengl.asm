@@ -25,7 +25,6 @@ EXTERN wglMakeCurrent
 EXTERN wglCreateContext
 EXTERN wglGetProcAddress
 EXTERN glColor3us
-EXTERN glColor4ubv
 EXTERN glRects
 EXTERN timeGetTime
 EXTERN midiOutOpen
@@ -76,33 +75,33 @@ start:
     push esi                                            ;; lpWindowName
     push 0x0C018                                        ;; lpClassName - Edit 
     push esi                                            ;; dwExStyle
-    call [CreateWindowExA]
+    call CreateWindowExA
 
     push eax                                            ;; hWnd from CreateWindowExA
-    call [GetDC]                                        ;; Get device context
+    call GetDC                                          ;; Get device context
     xchg edi, eax                                       ;; Save hDC in edi for later use
 
     push pfd                                            ;; pfd - pPixelformat
     push edi                                            ;; hDC
-    call [ChoosePixelFormat]                            ;; Try to match pixel format for device context
+    call ChoosePixelFormat                              ;; Try to match pixel format for device context
 
     push pfd                                            ;; pfd
     push eax                                            ;; iPixelFormat from ChoosePixelFormat
     push edi                                            ;; hDC
-    call [SetPixelFormat]                               ;; Set pixel format specified by iPixelFormat to device context
+    call SetPixelFormat                                 ;; Set pixel format specified by iPixelFormat to device context
 
     push edi                                            ;; hDC
-    call [wglCreateContext]                             ;; Create OpenGL context
+    call wglCreateContext                               ;; Create OpenGL context
 
     push eax                                            ;; Context from wglCreateContext
     push edi                                            ;; hDC
-    call [wglMakeCurrent]                               ;; Make OpenGL context current rendering context
+    call wglMakeCurrent                                 ;; Make OpenGL context current rendering context
 
     push esi                                            ;; Set value to false (esi = 0)
-    call [ShowCursor]                                   ;; Hide busy cursor
+    call ShowCursor                                     ;; Hide busy cursor
 
     push glCreateShaderProgramv                         ;; Get address of
-    call [wglGetProcAddress]                            ;; OpenGL extension glCreateShaderProgramv
+    call wglGetProcAddress                              ;; OpenGL extension glCreateShaderProgramv
 
     push dword fShader                                  ;; Push fragment shader source on stack
     lea ebx, [esp]                                      ;; Load effective address of shader source on stack in ebx
@@ -113,7 +112,7 @@ start:
     xchg ebx, eax
 
     push glUseProgram                                   ;; Get address of
-    call [wglGetProcAddress]                            ;; OpenGL extension glUseProgram
+    call wglGetProcAddress                              ;; OpenGL extension glUseProgram
 
     push ebx                                            ;; Use shader program in ebx with the address of glUseProgram
     call eax                                            ;; Call glUserProgram
@@ -124,23 +123,23 @@ start:
     push esi                                            ;; dwCallback
     push esi                                            ;; uDeviceID
     push midiOut                                        ;; lphmo - Store to midiOut
-    call [midiOutOpen]                                  ;;
+    call midiOutOpen                                    ;;
     mov ebx, dword [midiOut]
 
     push 0x7EC0                                         ;; dwMsg - 0x7EC0
     push ebx                                            ;; hmo
-    call [midiOutShortMsg]                              ;;
+    call midiOutShortMsg                                ;;
 
     push 0x7F2490                                       ;; dwMsg - 0x7F2490
     push ebx                                            ;; hmo
-    call [midiOutShortMsg]                              ;;
+    call midiOutShortMsg                                ;;
 
-    call [timeGetTime]                                  ;; Call timer
+    call timeGetTime                                    ;; Call timer
     mov dword [startTime], eax                          ;; Store output in startTime
 
     .loop:
         ;; Update timer
-        call [timeGetTime]                              ;; Call timer
+        call timeGetTime                                ;; Call timer
         xchg ebx, eax                                   ;; Save time elapsed in ebx
         sub ebx, [startTime]                            ;; startTime - currentTime
 
@@ -148,18 +147,18 @@ start:
         push esi                                        ;; blue - esi = 0
         push esi                                        ;; green
         push ebx                                        ;; red - Time elapsed
-        call [glColor3us]
+        call glColor3us
 
         ;; Create a fullscreen rectangle to display the fragment shader
         push 1                                          ;; y2
         push 1                                          ;; x2
         push -1                                         ;; y1
         push -1                                         ;; x1
-        call [glRects]                                  ;;
+        call glRects                                    ;;
 
         ;; Swap buffer and display shader
         push edi                                        ;; hDC was stored earlier in edi
-        call [SwapBuffers]                              ;; Exchange front and back buffers for device context
+        call SwapBuffers                                ;; Exchange front and back buffers for device context
 
         ;; PeekMessageA to remove busy cursor
         push esi                                        ;; wRemoveMsg - esi = 0
@@ -167,7 +166,7 @@ start:
         push esi                                        ;; wMsgFilterMin
         push esi                                        ;; hWnd
         push 1                                          ;; lpMsg - PM_REMOVE - Remove message
-        call [PeekMessageA]                             ;; Dispatch incoming sent message
+        call PeekMessageA                               ;; Dispatch incoming sent message
 
         ;; Check if time limit has been reached
         cmp ebx, 10000                                  ;; Is time elapsed above 10 seconds?
@@ -175,10 +174,10 @@ start:
 
         ;; Check for VK_ESCAPE
         push 0x1B                                       ;; VK_ESCAPE
-        call [GetAsyncKeyState]                         ;; Check for key state
+        call GetAsyncKeyState                           ;; Check for key state
         sahf
         jns SHORT .loop
 
 quit:
     push esi                                            ;; esi = 0
-    call [ExitProcess]                                  ;; 
+    call ExitProcess                                    ;; 
