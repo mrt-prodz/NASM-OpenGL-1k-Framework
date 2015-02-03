@@ -2,7 +2,7 @@
  
 ####Tiny OpenGL fragment shader
 
-This is a port of [Jeff "drift" Symons Visual Studio OpenGL 1k Framework](http://www.pouet.net/topic.php?which=10038&page=2#c480977) in Assembly using NASM/GoLink.
+This is a port of [Jeff "drift" Symons Visual Studio OpenGL 1k Framework](http://www.pouet.net/topic.php?which=10038&page=2#c480977) in x86 Assembly using NASM/GoLink.
 
 The purpose of this project was to build a tiny binary being able to play OpenGL fragment shader and play music in the background. I tried to save a couple bytes by re-using registers a lot, source is documented.
 
@@ -10,7 +10,7 @@ The purpose of this project was to build a tiny binary being able to play OpenGL
 
 Following Jeff "drift" Symons project:
 
-* OpenGl fragment shader (plasma)
+* OpenGL fragment shader (plasma)
 * MIDI ambient noise
 * 2,560 bytes unpacked compiled binary
 
